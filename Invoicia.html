@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="invoiceStyle.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+
+<body>
+
+
+		<div>
+		
+		<p id="Invoice Builder App">Invoice Builder App</p>
+		
+			<table align="center" border="3">
+				<th id="dataEntry"><p >Data Entry</p></th>
+				<th><p>Invoice</p></th>
+		
+			
+		
+				<tr valign="top">
+					
+					<td id="inputColumn">
+						<!-- DataInput -->
+							<form >
+									Item Name/Description:<br>
+									<input type="text" id="Description" value="Enter Item Name"><br>
+									Item Price:<br>
+									<input type="number" id="Price" value="0"><br><br>
+									<button style="width: 100%;" id="bA" type="button" > Add Item to cart </button>
+									<br><br>
+									<button  style="width: 100%;"id="bR" type="button" > Reset fields </button>
+									<br>
+									<button style="width: 100%;" id="bF" type="button" > finalize the Invoice </button>
+								
+							</form>
+
+						
+					</td>
+        
+					<td>
+						<!-- Invoice -->
+						<table id="Invoice" align="center" border="1">
+						<th><p >Item Description</p></th>
+						<th><p >Due Amount</p></th>
+
+
+						</table>
+		  
+					</td>
+			</tr>
+			</table>
+	
+		</div>
+		<!-- END OF Static HTML -->
+
+</body>
+
+<script type="application/javascript">
+
+    // Global Variabels -->
+    var bA = document.getElementById("bA");
+    var bR = document.getElementById("bR");
+    var bF = document.getElementById("bF");
+    var Description = document.getElementById("Description");
+    var Price = document.getElementById("Price");
+    var InputColumn = document.getElementById("inputColumn");
+    var dataEntry = document.getElementById("dataEntry");
+	var total  =0;
+    jQuery(document).ready(function($) {
+        // Row Addition Button -->
+        bA.onclick = function bA() {
+
+            var table = document.getElementById("Invoice");
+            var rowCount = table.rows.length;
+            var rowNum = table.insertRow(rowCount);
+            var row = table.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+
+            <!-- Row Delete Button -->
+            var rDB = document.createElement("BUTTON");        // Create a <button> element {Row Delete Button}
+            var trDB = document.createTextNode("Delete Row");       // Create a text node
+            rDB.appendChild(trDB);
+            rDB.style.background = "#ffd284";
+            rDB.className = "DeleteButton";
+
+            // End of Row Delete Button -->
+
+            // Item description Button -->
+            var iDB = document.createElement("BUTTON");        // Create a <button> element {Row Edit Button}
+            var tiDB = document.createTextNode("Edit Entry");       // Create a text node
+            iDB.appendChild(tiDB);
+            iDB.style.background = "#e9ff00";
+            iDB.className = "EditButton";
+            // End of Item description Button -->
+
+            cell1.appendChild(rDB);
+            cell1.appendChild(iDB);
+
+            $(document.createElement('p')).text(Description.value).addClass('DescriptionInTable').css({
+                'font-size': '18px',
+            }).appendTo(cell1);
+
+            $(document.createElement('p')).text(Price.value).addClass('PreisInTable').css({
+                'font-size': '18px',
+            }).appendTo(cell2);
+
+            total = parseFloat(total) + parseFloat(Price.value);
+        }
+        // End of Row Addition Button -->
+
+
+        // Form Reset Button -->
+        bR.onclick = function bR() {
+            Description.value = "";
+            Price.value = "0";
+
+        }
+        // End of Form Reset Button -->
+
+        // Form Finalyze Button -->
+        bF.onclick = function bF() {
+            InputColumn.parentNode.removeChild(InputColumn); //delet input forum
+            dataEntry.parentNode.removeChild(dataEntry);	//delete data Entry Text
+
+            // Add the total to the invoice -->
+            var table = document.getElementById("Invoice");
+            var rowCount = table.rows.length;
+            var rowNum = table.insertRow(rowCount);
+            var row = table.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+
+            cell1.innerHTML += "Total amount due";
+            cell2.innerHTML = total.toString();
+            // End of Add the total to the invoice -->
+
+            // Remove Buttons from the Invoice -->
+            //Remove Delete Buttons
+            var deleteButton = document.getElementsByClassName('DeleteButton');
+            while (deleteButton[0]) {
+                deleteButton[0].parentNode.removeChild(deleteButton[0]);
+            }
+            //Remove Edit Buttons
+            var editButton = document.getElementsByClassName('EditButton');
+            while (editButton[0]) {
+                editButton[0].parentNode.removeChild(editButton[0]);
+            }
+            // End of Remove Buttons from the Invoice -->
+        }
+        // End of Form Finalyze Button -->
+
+        // Delete Row Button -->
+        $(document).on('click', '.DeleteButton', function () {
+            //get the preis to be remouved
+            var preisToBeRemouved= $(this).closest('tr').find('.PreisInTable').text();
+            // adjust the total amount to reflect the delition of the Item
+            total = parseFloat(total) - parseFloat(preisToBeRemouved);
+			//remouve the row
+            $(this).closest('tr').remove();
+        });
+        // End of Delete Row Button -->
+
+        // Edit Row Button -->
+        $(document).on('click', '.EditButton', function () {
+            var thisbutton = $(this);
+            var descriptionInTable = $(this).closest('td').find('.DescriptionInTable');
+            var preisInTable = $(this).closest('tr').find('.PreisInTable');
+
+			// Create the popup Div
+            $(document.createElement('div')).addClass('EditPopUp').attr('id', 'editPopUp').css({
+                'font-weight': 'bold',
+                'z-index': '1',
+                'background-color': '#fffa97',
+                'width': '40%',
+                'height': '30%'
+            }).appendTo('body');
+            $('.EditPopUp').center(); // Center the popup Div
+
+            $(document.createElement('p')).text('Edit Entry').css({
+                'padding': '0px 40px 0px',
+                'font-size': '20px',
+                'font-weight': 'bold',
+                'display': 'inline-block'
+            }).appendTo('#editPopUp');
+
+            // save changes button
+            $(document.createElement('div')).attr('id', 'Savechanges').css({
+                'background-color': '#c0e1d5',
+                'display': 'inline-block'
+            }).appendTo('#editPopUp');
+            $('#Savechanges').on('click', function () {
+                //get and set new Item description
+                var newItemDescription = $('#InputfieldItem').val();
+                thisbutton.closest('td').find('.DescriptionInTable').text(newItemDescription);
+                //get and set new Item description
+				var oldItemPreis= thisbutton.closest('tr').find('.PreisInTable').text();
+                var newItemPrice = $('#InputfieldPreis').val();
+                thisbutton.closest('tr').find('.PreisInTable').text(newItemPrice);
+
+                // adjust the total amount to the new preis
+                total = parseFloat(total) - parseFloat(oldItemPreis);
+                total = parseFloat(total) + parseFloat(newItemPrice);
+
+                // close and remouve the popup window
+                $('#editPopUp').remove();
+
+            })
+
+            $(document.createElement('p')).text('Save changes').css({
+                'font-size': '15px',
+                'cursor': 'pointer',
+                'margin': '5px 5px 5px 5px',
+                'font-weight': 'bold',
+                'display': 'inline-block'
+            }).appendTo('#Savechanges');
+            // end of save changes button
+
+            // cancel button
+            $(document.createElement('div')).attr('id', 'Cancel').css({
+                'background-color': '#e1beac',
+                'display': 'inline-block'
+            }).appendTo('#editPopUp');
+            $(document.createElement('p')).text('Cancel').css({
+                'font-size': '15px',
+                'cursor': 'pointer',
+                'margin': '5px 5px 5px',
+                'font-weight': 'bold',
+                'display': 'inline-block'
+            }).appendTo('#Cancel');
+            $(document).on('click', '#Cancel', function () {
+                $('#editPopUp').remove();
+            });
+            // end of cancell button
+
+			// Create Input Fields
+            $("#editPopUp").append("<br/>");
+            $(document.createElement('p')).text('Edit item description').css({
+                'padding': '0px 20px 0px',
+                'font-size': '15px',
+                'display': 'inline-block'
+            }).appendTo('#editPopUp');
+
+            $(document.createElement('input')).addClass('InputfieldItem').attr('id', 'InputfieldItem').attr({
+                type: 'text',
+                value: descriptionInTable.text(),
+            }).appendTo('#editPopUp');
+            $("#editPopUp").append("<br/>");
+
+            $(document.createElement('p')).text('Edit Preis').css({
+                'padding': '0px 20px 0px',
+                'font-size': '15px',
+                'display': 'inline-block'
+            }).appendTo('#editPopUp');
+
+            $(document.createElement('input')).addClass('InputfieldPreis').attr('id', 'InputfieldPreis').attr({
+                type: 'number',
+                value: preisInTable.text(),
+            }).appendTo('#editPopUp');
+            //End of Input Fields
+
+        });
+        // End of Edit Row Button -->
+
+        // Center the Edit DIV
+        jQuery.fn.center = function () {
+            this.css("position", "fixed");
+            this.css("top", ($(window).height() - this.height()) / 2 + $(window).scrollTop() + "px");
+            this.css("left", ($(window).width() - this.width()) / 2 + $(window).scrollLeft() + "px");
+            return this;
+        }
+        // End of Edit Row Button -->
+
+    });
+
+
+
+
+
+
+
+</script>
+</html>
